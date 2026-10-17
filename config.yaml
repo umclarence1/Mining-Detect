@@ -1,0 +1,89 @@
+# Galamsey Detector — single source of truth for all settings.
+# Change values here, not inside scripts.
+
+project:
+  name: galamsey-detector
+  gee_project: galamsey-detector-511801
+  seed: 42
+
+# Areas of interest, as [min_lon, min_lat, max_lon, max_lat] (EPSG:4326).
+regions:
+  # Wider training region: parts of Western, Central and Ashanti regions
+  # (Ankobra, Pra and Offin basins). Widen if we run short of tiles.
+  train: [-2.60, 5.00, -1.40, 6.60]
+  # Held-out test block around Tarkwa (~20 x 20 km). Never used for training.
+  test_tarkwa: [-2.08, 5.21, -1.90, 5.39]
+
+# Dry-season composite windows (Nov–Feb).
+periods:
+  baseline: {start: "2019-11-01", end: "2020-02-29"}
+  recent:   {start: "2025-11-01", end: "2026-02-28"}
+
+imagery:
+  collection: COPERNICUS/S2_SR_HARMONIZED
+  cloud_score_collection: GOOGLE/CLOUD_SCORE_PLUS/V1/S2_HARMONIZED
+  cloud_score_band: cs_cdf
+  clear_threshold: 0.60          # keep pixels with cs_cdf >= this
+  composite: median
+  scale_m: 10
+  bands_all: [B1, B2, B3, B4, B5, B6, B7, B8, B8A, B9, B11, B12]
+  bands_rgb: [B4, B3, B2]
+
+labels:
+  maus_file: data/raw/maus/global_mining_polygons_v2.gpkg   # Maus et al. (2022), PANGAEA 942325
+  hand_labels: labels/hand_labels.geojson
+  # Squares you have labelled completely. Inside them only hand labels count,
+  # and accuracy is scored only inside them.
+  hand_label_areas: labels/hand_label_areas.geojson
+  # Licensed mining concessions (Minerals Commission), if obtained. Any vector
+  # format geopandas can read. Used instead of Maus to flag licensed mining.
+  concessions_file: data/raw/concessions/concessions.geojson
+  classes:                       # see docs/labeling_guide.md
+    0: background
+    1: mining
+  # Provisional rule-based labels, used until hand labels exist.
+  # Maus misses most stream-side galamsey, so a spectral rule adds it.
+  rule:
+    ndvi_max: 0.38               # bare ground: NDVI below this ...
+    mndwi_bare_max: 0.0          # ... and not water
+    turbid_red_min: 700          # muddy water: water with red reflectance above this (x1e-4)
+    stream_upa_km2: 0.5            # MERIT Hydro upstream area defining a stream
+    stream_buffer_m: 300         # galamsey rule only applies this close to a stream
+    worldcover: ESA/WorldCover/v200   # built-up (class 50) excluded
+    min_patch_px: 10             # drop specks smaller than 0.1 ha
+
+tiles:
+  size_px: 256
+  crs: EPSG:32630                # UTM 30N, metres
+  # Sized for CPU training on a laptop. Raise if training on Colab.
+  max_positive_per_period: 300   # tiles containing mining
+  max_negative_per_period: 150   # tiles with no mining (negatives matter)
+  positive_min_fraction: 0.005
+  test_buffer_m: 2000            # gap between training tiles and the Tarkwa test block
+  workers: 8
+  out_dir: data/tiles
+
+splits:
+  method: spatial_blocks         # never random tiles — neighbours leak
+  block_km: 10
+  val_fraction: 0.15
+  out_dir: data/splits
+
+model:
+  arch: unet
+  encoder: resnet18              # resnet34 if training on a GPU
+  encoder_weights: imagenet
+  experiments: [rgb, all_bands]
+  loss: dice_bce
+  batch_size: 16
+  crop_px: 128                   # random crops for training (faster on CPU); eval uses full tiles
+  epochs: 15
+  lr: 0.0005
+  num_threads: 8
+  checkpoint_dir: outputs/checkpoints
+
+analysis:
+  prob_threshold: 0.5
+  min_patch_ha: 0.1              # ignore specks smaller than this
+  river_buffer_m: 500
+  area_method: olofsson_2014     # error-adjusted area with confidence interval

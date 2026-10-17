@@ -1,0 +1,18 @@
+{
+  "area_ha": 41943.04,
+  "mining_2020_ha": 3730.89,
+  "mining_2026_ha": 5735.4400000000005,
+  "new_mining_ha": 3045.37,
+  "no_longer_mining_ha": 1040.82,
+  "new_mining_outside_licensed_ha": 1879.4,
+  "new_mining_inside_licensed_ha": 1165.97,
+  "licensed_footprint_source": "Maus industrial footprint (proxy)",
+  "mining_2020_pct": 8.895134925842285,
+  "mining_2026_pct": 13.674354553222656,
+  "olofsson": {
+    "adjusted_new_ha": 4539.6,
+    "ci95_ha": 2061.9,
+    "users_accuracy_new": 0.609,
+    "points_labelled": 157
+  }
+}

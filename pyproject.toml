@@ -1,0 +1,56 @@
+[project]
+name = "galamsey-detector"
+version = "0.1.0"
+description = "Detect small-scale gold mining (galamsey) in Ghana from Sentinel-2 imagery with a U-Net, measure change, and rank new sites."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.11"
+authors = [{ name = "umclarence1" }]
+keywords = ["remote-sensing", "sentinel-2", "earth-engine", "segmentation", "u-net", "ghana", "mining"]
+dependencies = [
+  "earthengine-api",
+  "geemap",
+  "rasterio",
+  "geopandas",
+  "shapely",
+  "pyproj",
+  "torch",
+  "torchvision",
+  "segmentation-models-pytorch",
+  "scikit-learn",
+  "scipy",
+  "numpy",
+  "pandas",
+  "matplotlib",
+  "folium",
+  "pillow",
+  "pyyaml",
+  "tqdm",
+  "fastapi",
+  "uvicorn",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
+
+[project.urls]
+Repository = "https://github.com/umclarence1/Gala-Detect"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["common*", "gee*", "model*", "analysis*", "app*", "webapp*"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501", "B008", "B905"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

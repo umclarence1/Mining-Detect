@@ -1,0 +1,28 @@
+# Earth Engine + geospatial
+earthengine-api
+geemap
+rasterio
+geopandas
+shapely
+pyproj
+
+# ML
+torch
+torchvision
+segmentation-models-pytorch
+albumentations
+scikit-learn
+
+# Analysis / viz
+numpy
+pandas
+matplotlib
+folium
+
+# Utilities
+pyyaml
+tqdm
+
+# Web app
+fastapi
+uvicorn

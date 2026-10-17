@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Galamsey Detector</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app" id="app">
+  <header class="topbar">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 15c3-1 4-5 7-5s4 3 7 2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="10" r="2" fill="currentColor"/></svg>
+      <span class="name">Galamsey <b>Detector</b></span>
+    </div>
+    <div class="region"><span class="dot"></span>Tarkwa, Western Region · Sentinel-2 · 10 m</div>
+    <nav class="modes" role="tablist" aria-label="Map mode">
+      <button role="tab" id="modeExplore" aria-selected="true">Explore</button>
+      <button role="tab" id="modeCompare" aria-selected="false">Compare years</button>
+    </nav>
+    <div class="years" id="yearSwitch" role="radiogroup" aria-label="Year">
+      <button role="radio" data-year="2020" aria-checked="false">2020</button>
+      <button role="radio" data-year="2026" aria-checked="true">2026</button>
+    </div>
+    <a class="docs" href="/api/docs" target="_blank" rel="noopener">API</a>
+    <button class="panel-toggle" id="toggleSide" aria-label="Show stats and layers">Stats</button>
+    <button class="panel-toggle" id="toggleAlerts" aria-label="Show alerts">Alerts</button>
+  </header>
+
+  <aside class="side" id="side">
+    <section class="block">
+      <h2 class="label">Tarkwa block · 2020 → 2026</h2>
+      <div class="kpis" id="kpis"></div>
+    </section>
+
+    <section class="block">
+      <h2 class="label">Layers</h2>
+      <div class="layers" id="layers"></div>
+      <label class="range" for="imgOpacity"><span>Sentinel-2 imagery opacity</span>
+        <input type="range" id="imgOpacity" min="0" max="100" value="100"></label>
+    </section>
+
+    <section class="block">
+      <h2 class="label">Mining area (ha)</h2>
+      <svg class="chart" id="chartArea" viewBox="0 0 300 150" role="img" aria-label="Mining area by year"></svg>
+      <h2 class="label">Detection score (IoU)</h2>
+      <svg class="chart" id="chartModel" viewBox="0 0 300 120" role="img" aria-label="IoU by model"></svg>
+      <p class="fine">IoU on held-out Tarkwa tiles against rule-based labels. A blind 180-point visual check agreed with the maps at 88% of points.</p>
+    </section>
+
+    <details class="block about">
+      <summary class="label">About the data</summary>
+      <p class="fine">Dry-season (Nov–Feb) median composites of Copernicus Sentinel-2, cloud-masked with Cloud Score+. U-Net (ResNet-18, 12 bands) trained on 900 tiles from the Ankobra, Pra and Offin basins; Tarkwa held out. The model detects mining disturbance, not legality: the industrial footprint (Maus et al. 2022) stands in for licence boundaries. Validation points were interpreted visually by an AI assistant, without field checks.</p>
+    </details>
+  </aside>
+
+  <main class="mapwrap">
+    <div id="map" aria-label="Map"></div>
+    <div class="swipe" id="swipe" hidden><div class="swipe-handle" id="swipeHandle" tabindex="0" role="slider" aria-label="Compare position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><span>◂ ▸</span></div></div>
+    <div class="swipe-tags" id="swipeTags" hidden><span>2020</span><span>2026</span></div>
+    <div class="legend" id="legend"></div>
+  </main>
+
+  <aside class="alerts" id="alerts">
+    <div class="alerts-head">
+      <h2 class="label">New mining alerts</h2>
+      <div class="count"><b id="alertCount">–</b> <span id="alertCountLabel">sites</span></div>
+    </div>
+    <div class="filters">
+      <label class="range" for="minArea"><span>Minimum size <b id="minAreaVal">1 ha</b></span>
+        <input type="range" id="minArea" min="0" max="50" step="1" value="1"></label>
+      <div class="chips">
+        <button class="fchip" id="fRiver" aria-pressed="false">Near stream</button>
+        <button class="fchip" id="fReserve" aria-pressed="false">In forest reserve</button>
+      </div>
+      <div class="row">
+        <label class="select" for="sortBy">Sort
+          <select id="sortBy"><option value="priority">Priority</option><option value="area">Size</option></select></label>
+        <a class="export" id="exportCsv" href="/api/alerts.csv">Export CSV</a>
+      </div>
+    </div>
+    <div class="detail" id="detail" hidden></div>
+    <ol class="list" id="alertList"></ol>
+  </aside>
+</div>
+<div id="tip" hidden></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

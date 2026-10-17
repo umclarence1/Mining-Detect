@@ -1,0 +1,12 @@
+{
+  "baseline": {
+    "ndti_mean": 0.07756585232135112,
+    "red_reflectance_mean": 0.21606188502588985,
+    "water_pixels_20m": 86978
+  },
+  "recent": {
+    "ndti_mean": 0.07454425444228774,
+    "red_reflectance_mean": 0.2665191135858015,
+    "water_pixels_20m": 141716
+  }
+}

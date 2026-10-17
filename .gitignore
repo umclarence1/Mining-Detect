@@ -1,0 +1,35 @@
+# Large / generated data (rebuild with run_pipeline.py)
+data/**/*
+!data/**/
+!data/**/.gitkeep
+outputs/**/*
+!outputs/**/
+!outputs/**/.gitkeep
+webapp/static/data/
+*.tif
+*.tiff
+*.npz
+*.npy
+*.pt
+*.pth
+*.gpkg
+
+# Labels can contain exact site locations; keep them out of the public repo
+labels/*.geojson
+!labels/.gitkeep
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+venv/
+.ipynb_checkpoints/
+.pytest_cache/
+.ruff_cache/
+
+# Secrets / local
+.env
+*.json.key
+.vscode/
+.idea/
